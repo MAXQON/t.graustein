@@ -1,3 +1,4 @@
+// ConsentModal.js
 import React from "react";
 import "./ConsentModal.css";
 
