@@ -14,7 +14,7 @@ import ClassicHeader from "./components/ClassicHeader";
 import { commonConfig } from "./config/commonConfig";
 import TermsAndConditions from "./components/TermsAndConditions";
 import Disclaimer from "./components/Disclaimer";
-import PreLoader from "./components/Preloader";
+import PreLoader from "./components/Preloader"; // Keep PreLoader for initial site load
 import { Tooltip } from "./components/Tooltip";
 
 function App() {
@@ -22,39 +22,97 @@ function App() {
   const [hasAcceptedConsent, setHasAcceptedConsent] = useState(false);
 
   // State for your existing loading functionality
-  const [isLoading, setIsLoading] = useState(true); // Renamed from setisLoading for consistency
+  const [isLoading, setIsLoading] = useState(true);
 
   // State for Scroll-to-Top functionality
   const [scrollTopVisible, setScrollTopVisible] = useState(false);
 
   // Destructure commonConfig values (available after main content loads)
-  const classicHeader = commonConfig.classicHeader; // Will be undefined until commonConfig loads
-  const darkTheme = commonConfig.darkTheme; // Will be undefined until commonConfig loads
+  // These will be undefined until commonConfig.js is actually processed and exports them.
+  // It's fine to keep them here, but be aware of their initial state.
+  const classicHeader = commonConfig.classicHeader;
+  const darkTheme = commonConfig.darkTheme;
+
+  // --- Utility functions for cookie handling ---
+
+  /**
+   * Sets the 'hasAcceptedConsent' cookie with an expiration date.
+   * @param {number} days The number of days until the cookie expires.
+   */
+  const setConsentCookie = (days) => {
+    const date = new Date();
+    // Calculate expiration: current time + days * 24h * 60m * 60s * 1000ms
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    const expires = "expires=" + date.toUTCString();
+
+    // Set the cookie.
+    // 'path=/' makes it available across the entire site.
+    // 'SameSite=Lax' helps prevent CSRF attacks.
+    // 'Secure' ensures the cookie is only sent over HTTPS (CRUCIAL for production).
+    document.cookie = `hasAcceptedConsent=true;${expires};path=/;SameSite=Lax;Secure`;
+    console.log("Consent cookie set:", document.cookie);
+  };
+
+  /**
+   * Checks if the 'hasAcceptedConsent' cookie exists and is true.
+   * Browsers automatically remove expired cookies, so simply checking for its presence
+   * is enough to determine if consent is currently valid.
+   * @returns {boolean} True if consent cookie is found and true, false otherwise.
+   */
+  const checkConsentCookie = () => {
+    const name = "hasAcceptedConsent=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(";"); // Split by semicolons
+
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      // Trim whitespace from the start of the cookie string
+      while (c.charAt(0) === " ") {
+        c = c.substring(1);
+      }
+      // If this cookie string begins with the name we want, check its value
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length) === "true";
+      }
+    }
+    return false; // Cookie not found or not 'true'
+  };
 
   // --- Consent Logic (Runs first) ---
   useEffect(() => {
-    const consentGiven = localStorage.getItem("site_consent_agreed");
-    if (consentGiven === "true") {
+    // Check if the cookie exists and is valid
+    const consentGiven = checkConsentCookie();
+
+    if (consentGiven) {
       setHasAcceptedConsent(true);
-      // If consent is already given, we can start the main content loading logic
-      // immediately after the browser confirms it's ready.
-      // No need for a manual isLoading timeout if consent is already true,
-      // as the main site content will load directly.
+      // If consent is already given via cookie, proceed with normal site loading
+      // The PreLoader (if used) will run its course or be skipped
+      // depending on how you've set up isLoading initially.
+      // Assuming PreLoader is shown only if isLoading is true,
+      // you might want to set isLoading(false) here after a short delay
+      // if you want the site to load faster for returning users.
+      // For now, we'll keep the existing isLoading logic which relies on a timeout.
+      const initialLoadingTimeout = setTimeout(() => {
+        setIsLoading(false);
+      }, 1000); // Keep initial 1-second delay for site content to load
+      return () => clearTimeout(initialLoadingTimeout);
     } else {
-      // If consent is NOT given, we initially mark isLoading as true
-      // and won't set it to false until after consent is accepted.
-      setIsLoading(true);
+      // If consent is NOT given (cookie expired or not present),
+      // show the modal and ensure main content is not loaded yet.
+      setHasAcceptedConsent(false); // Ensure this is false
+      setIsLoading(true); // Keep loading state true until consent is given
     }
   }, []); // Only runs once on initial App component mount
 
   const handleAcceptConsent = () => {
-    setHasAcceptedConsent(true);
-    localStorage.setItem("site_consent_agreed", "true");
+    setHasAcceptedConsent(true); // Set state to true
+    setConsentCookie(7); // Set the cookie for 7 days
+
     // Once consent is accepted, start the "main content loading" timer
     // This provides a short delay for the transition from modal to site
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
-    }, 1000); // 1-second delay after consent for "site loading" animation (if you have one)
+    }, 1000); // 1-second delay after consent for "site loading" animation
     return () => {
       // Cleanup for the timeout if component unmounts early (unlikely for App)
       clearTimeout(loadingTimeout);
@@ -63,13 +121,10 @@ function App() {
 
   // --- Scroll-to-Top Logic (Only active when main content is loaded) ---
   useEffect(() => {
-    // This useEffect will only run when hasAcceptedConsent changes to true
-    // AND when isLoading changes to false, meaning the site content is visible.
     if (hasAcceptedConsent && !isLoading) {
       const checkScrollTop = () => {
         let scrollTopBtn = document.getElementById("back-to-top");
         if (scrollTopBtn) {
-          // Check if the button element exists
           if (
             document.body.scrollTop > 400 ||
             document.documentElement.scrollTop > 400
@@ -81,25 +136,22 @@ function App() {
         }
       };
 
-      // Add event listener only when main content is loaded
       window.addEventListener("scroll", checkScrollTop);
-
-      // Clean up the event listener when the component unmounts
       return () => {
         window.removeEventListener("scroll", checkScrollTop);
       };
     }
-  }, [hasAcceptedConsent, isLoading]); // Re-run effect if these states change
+  }, [hasAcceptedConsent, isLoading]);
 
   // --- Navigation Click Handler (Available to children of MainContent) ---
   const handleNavClick = (section) => {
     if (document.getElementById(section)) {
-      // Ensure the element exists before trying to scroll
       document.getElementById(section).scrollIntoView({ behavior: "smooth" });
     }
   };
 
   // --- Conditional Rendering ---
+  // If consent hasn't been accepted (based on cookie check), show only the modal.
   if (!hasAcceptedConsent) {
     return (
       <div className="App">
@@ -108,6 +160,7 @@ function App() {
     );
   }
 
+  // If consent has been accepted, show either the preloader or the main content.
   return (
     <>
       <div
@@ -175,6 +228,9 @@ function App() {
         <TermsAndConditions darkTheme={darkTheme}></TermsAndConditions>
         <Disclaimer darkTheme={darkTheme}></Disclaimer>
       </div>
+
+      {/* Your existing PreLoader logic */}
+      {isLoading && <PreLoader />}
     </>
   );
 }
