@@ -109,83 +109,73 @@ function App() {
   }
 
   return (
-    <div className="App">
-      {isLoading ? (
-        // You can render a simple loading screen here
-        <div className="site-loading-screen">
-          <p>Loading site...</p>
-          {/* Add a spinner or animation if you like */}
-        </div>
-      ) : (
-        <>
-          <div
-            style={{ position: "relative" }}
-            className={classicHeader ? "" : "side-header"}
-          >
-            <div id="main-wrapper">
-              {classicHeader ? (
-                <ClassicHeader handleNavClick={handleNavClick}></ClassicHeader>
-              ) : (
-                <Header handleNavClick={handleNavClick}></Header>
-              )}
+    <>
+      <div
+        style={{ position: "relative" }}
+        className={classicHeader ? "" : "side-header"}
+      >
+        <div id="main-wrapper">
+          {classicHeader ? (
+            <ClassicHeader handleNavClick={handleNavClick}></ClassicHeader>
+          ) : (
+            <Header handleNavClick={handleNavClick}></Header>
+          )}
 
-              <div id="content" role="main">
-                <Home
-                  classicHeader={classicHeader}
-                  darkTheme={darkTheme}
-                  handleNavClick={handleNavClick}
-                ></Home>
-                <AboutUs
-                  classicHeader={classicHeader}
-                  darkTheme={darkTheme}
-                ></AboutUs>
-                <Services
-                  classicHeader={classicHeader}
-                  darkTheme={darkTheme}
-                ></Services>
-                <Resume
-                  classicHeader={classicHeader}
-                  darkTheme={darkTheme}
-                ></Resume>
-                <Portfolio
-                  classicHeader={classicHeader}
-                  darkTheme={darkTheme}
-                ></Portfolio>
-                <Testimonials
-                  classicHeader={classicHeader}
-                  darkTheme={darkTheme}
-                ></Testimonials>
-                <Contact
-                  classicHeader={classicHeader}
-                  darkTheme={darkTheme}
-                ></Contact>
-              </div>
-              <Footer
-                classicHeader={classicHeader}
-                darkTheme={darkTheme}
-                handleNavClick={handleNavClick}
-              ></Footer>
-            </div>
-            {/* back to top */}
-            <Tooltip text="Back to Top" placement="left">
-              <span
-                id="back-to-top"
-                className="rounded-circle"
-                style={{ display: scrollTopVisible ? "inline" : "none" }}
-                onClick={() => {
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              >
-                <i className="fa fa-chevron-up"></i>
-              </span>
-            </Tooltip>
-
-            <TermsAndConditions darkTheme={darkTheme}></TermsAndConditions>
-            <Disclaimer darkTheme={darkTheme}></Disclaimer>
+          <div id="content" role="main">
+            <Home
+              classicHeader={classicHeader}
+              darkTheme={darkTheme}
+              handleNavClick={handleNavClick}
+            ></Home>
+            <AboutUs
+              classicHeader={classicHeader}
+              darkTheme={darkTheme}
+            ></AboutUs>
+            <Services
+              classicHeader={classicHeader}
+              darkTheme={darkTheme}
+            ></Services>
+            <Resume
+              classicHeader={classicHeader}
+              darkTheme={darkTheme}
+            ></Resume>
+            <Portfolio
+              classicHeader={classicHeader}
+              darkTheme={darkTheme}
+            ></Portfolio>
+            <Testimonials
+              classicHeader={classicHeader}
+              darkTheme={darkTheme}
+            ></Testimonials>
+            <Contact
+              classicHeader={classicHeader}
+              darkTheme={darkTheme}
+            ></Contact>
           </div>
-        </>
-      )}
-    </div>
+          <Footer
+            classicHeader={classicHeader}
+            darkTheme={darkTheme}
+            handleNavClick={handleNavClick}
+          ></Footer>
+        </div>
+        {/* back to top */}
+        <Tooltip text="Back to Top" placement="left">
+          <span
+            id="back-to-top"
+            className="rounded-circle"
+            style={{ display: scrollTopVisible ? "inline" : "none" }}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
+            <i className="fa fa-chevron-up"></i>
+          </span>
+        </Tooltip>
+
+        <TermsAndConditions darkTheme={darkTheme}></TermsAndConditions>
+        <Disclaimer darkTheme={darkTheme}></Disclaimer>
+      </div>
+    </>
   );
 }
 
