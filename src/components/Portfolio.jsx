@@ -1,10 +1,12 @@
+// src/components/Portfolio.js
 import React, { useEffect, useRef, useState } from "react";
-import Isotope from "isotope-layout";
-import ProjectDetailsModal from "./ProjectDetailsModal";
-import Iframe from "react-iframe";
+import Isotope from "isotope-layout"; // Keep if you use it elsewhere
+import ProjectDetailsModal from "./ProjectDetailsModal"; // Keep if used
+// import Iframe from "react-iframe"; // You might not need this anymore if SpotifyEmbed handles iframes
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import SpotifyEmbed from "./SpotifyEmbed"; // <--- IMPORT THE NEW COMPONENT
 
 const ARTIST_ID = ""; // Replace with the actual artist ID
 
@@ -20,7 +22,8 @@ const Portfolio = ({ classicHeader, darkTheme }) => {
     const fetchReleases = async () => {
       try {
         setLoading(true);
-        // ... (your existing fetch logic)
+        // Assuming your API returns real Spotify embed URLs or IDs you can convert
+        // For demonstration, we'll stick to the hardcoded `portfolioItems` below
         const response = await fetch(
           `/api/spotify/artist-releases/${ARTIST_ID}?market=ID`
         );
@@ -43,186 +46,107 @@ const Portfolio = ({ classicHeader, darkTheme }) => {
     fetchReleases();
   }, []);
 
+  // Handler for when an item is interacted with (mouse enter or touch start)
   const handleItemInteraction = () => {
     setAutoplayActive(false);
   };
-  const handleMouseLeaveCarousel = () => {
-    // When mouse leaves the entire carousel area, resume autoplay
-    // You might want to add a delay here or more complex logic
-    // to ensure it doesn't resume too quickly if a player is still active.
+
+  // Handler for when interaction ends (mouse leave or touch end)
+  const handleInteractionEnd = () => {
     setAutoplayActive(true);
   };
 
   const settings = {
-    dots: true, // Show navigation dots
-    infinite: true, // Loop the carousel
-    autoplay: autoplayActive, // Controlled by state
+    dots: true,
+    infinite: true,
+    autoplay: autoplayActive,
     autoplaySpeed: 3000,
-    speed: 500, // Animation speed
-    slidesToScroll: 1, // Scroll one slide at a time
-    pauseOnHover: false, // We will manage this manually
-    //pauseOnFocus: true,
-    // Default settings for desktop (or larger screens)
+    speed: 500,
+    slidesToScroll: 1,
+    pauseOnHover: false,
     slidesToShow: 3,
-
-    // Responsive settings
     responsive: [
       {
-        breakpoint: 1480, // Applies when screen width is 1480px or less
+        breakpoint: 1480,
         settings: {
-          slidesToShow: 2, // Show 2 items on tablets/laptops
+          slidesToShow: 2,
           slidesToScroll: 1,
           infinite: true,
           dots: true,
         },
       },
       {
-        breakpoint: 1100, // Applies when screen width is 1100px or less (typical tablet portrait)
-        settings: {
-          slidesToShow: 1, // Show 1 items
-          slidesToScroll: 1,
-          initialSlide: 0, // Start from the first slide
-        },
+        breakpoint: 1100,
+        settings: { slidesToShow: 1, slidesToScroll: 1, initialSlide: 0 },
       },
       {
-        breakpoint: 480, // Applies when screen width is 480px or less (typical mobile)
-        settings: {
-          slidesToShow: 1, // Show 1 items on mobile
-          slidesToScroll: 1,
-          initialSlide: 0, // Start from the first slide
-        },
+        breakpoint: 480,
+        settings: { slidesToShow: 1, slidesToScroll: 1, initialSlide: 0 },
       },
       {
-        breakpoint: 320, // Applies when screen width is 320px or less (smaller mobile)
-        settings: {
-          slidesToShow: 1, // Show 1 item on very small mobile
-          slidesToScroll: 1,
-          initialSlide: 0, // Start from the first slide
-        },
+        breakpoint: 320,
+        settings: { slidesToShow: 1, slidesToScroll: 1, initialSlide: 0 },
       },
     ],
   };
 
-  // Example items (replace with your actual portfolio items)
+  // Your original portfolioItems array, but now storing just the SRC
+  // The actual iframe will be rendered by the SpotifyEmbed component
   const portfolioItems = [
     {
       id: 1,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/5rwN8aLEDpZ5rJ4UX4MqgK?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="1"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/5rwN8aLEDpZ5rJ4UX4MqgK?utm_source=generator", // Your original src
+      title: "My Awesome Release 1", // Add meaningful titles
     },
     {
       id: 2,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/17mApYmMgv5PjYcDK6M2eR?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="2"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/17mApYmMgv5PjYcDK6M2eR?utm_source=generator", // Your original src
+      title: "My Latest Single",
     },
     {
       id: 3,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/6QLzEVHC0iUUmlhhZcp3MT?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="3"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/6QLzEVHC0iUUmlhhZcp3MT?utm_source=generator", // Your original src
+      title: "Album XYZ",
     },
     {
       id: 4,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/2xjSjFiPL5UXpl3dPTfKXm?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="4"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/2xjSjFiPL5UXpl3dPTfKXm?utm_source=generator",
+      title: "Another Great Track",
     },
     {
       id: 5,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/0VzvpwXcWi3BdCNyb0mLOk?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="5"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/0VzvpwXcWi3BdCNyb0mLOk?utm_source=generator",
+      title: "Collaborative Project",
     },
     {
       id: 6,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/5r0kABBH3n1l6yNZp5gHkK?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="6"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/5r0kABBH3n1l6yNZp5gHkK?utm_source=generator",
+      title: "Live Performance",
     },
     {
       id: 7,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/7LW4FQsktGfF1OaEVfjl0n?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="7"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/7LW4FQsktGfF1OaEVfjl0n?utm_source=generator",
+      title: "Remix Series",
     },
     {
       id: 8,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/3t4iIY3mlNiWGBCLcsskcM?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="8"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/3t4iIY3mlNiWGBCLcsskcM?utm_source=generator",
+      title: "Experimental Sound",
     },
     {
       id: 9,
-      content: (
-        <iframe
-          src="https://open.spotify.com/embed/album/0GXZT6lMFx4JWX2ndjf1R3?utm_source=generator"
-          width="100%"
-          height="352"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          id="9"
-        ></iframe>
-      ),
+      src: "https://open.spotify.com/embed/album/0GXZT6lMFx4JWX2ndjf1R3?utm_source=generator",
+      title: "Chill Vibes Playlist",
     },
   ];
+
+  // If you want to use the fetched releases, you would map them here:
+  // const dynamicPortfolioItems = releases.map(release => ({
+  //   id: release.id,
+  //   src: `https://open.spotify.com/embed/track/${release.id}?utm_source=generator`, // Assuming API gives track ID
+  //   title: release.name // Use the release name as title
+  // }));
+
   return (
     <>
       <section
@@ -254,24 +178,36 @@ const Portfolio = ({ classicHeader, darkTheme }) => {
           {/* Heading end*/}
           <div
             className="portfolio"
-            //onMouseEnter={() => setAutoplayActive(false)} // Stop Scroll
-            //onMouseLeave={() => setAutoplayActive(true)} // Resume Scroll
+            onMouseEnter={handleItemInteraction}
+            onMouseLeave={handleInteractionEnd}
+            onTouchStart={handleItemInteraction}
+            onTouchEnd={handleInteractionEnd}
+            onTouchCancel={handleInteractionEnd}
           >
             <div className="row">
               <div className="col-lg-12">
-                {/* Only render the Slider if there are items */}
+                {/* Render the Slider with SpotifyEmbed components */}
                 {portfolioItems.length > 0 && (
                   <Slider {...settings} ref={sliderRef}>
+                    {/* Map through portfolioItems and render SpotifyEmbed for each */}
                     {portfolioItems.map((item) => (
                       <div
                         key={item.id}
                         className="portfolio-item"
-                        //onClick={handleItemInteraction}
-                        onMouseEnter={handleItemInteraction}
-                        onMouseLeave={() => setAutoplayActive(true)}
+                        // These handlers are now less critical on the individual item
+                        // because the parent 'portfolio' div captures general interaction
+                        // onMouseEnter={handleItemInteraction}
+                        // onMouseLeave={handleInteractionEnd}
+                        // onTouchStart={handleItemInteraction}
+                        // onTouchEnd={handleInteractionEnd}
+                        // onTouchCancel={handleInteractionEnd}
                       >
-                        <h3>{item.content}</h3>
-                        {/* Your actual portfolio content goes here */}
+                        {/* Use the new SpotifyEmbed component */}
+                        <SpotifyEmbed
+                          id={item.id}
+                          src={item.src}
+                          title={item.title}
+                        />
                       </div>
                     ))}
                   </Slider>
